@@ -12,7 +12,7 @@ namespace AIChess {
         static void Main() {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Board());
+            Application.Run(new MainMenu());
         }
     }
 }

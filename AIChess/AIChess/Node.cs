@@ -336,16 +336,10 @@ namespace AIChess {
 
                     if (this.tile(x, y).Color == them) {
                         children.Add(new Node(this, originalX, originalY, x, y));
-                        x = originalX;
-                        y = originalY;
                         break;
                     }
 
-                    if (this.tile(x, y).Color == us) {
-                        x = originalX;
-                        y = originalY;
-                        break;
-                    }
+                    if (this.tile(x, y).Color == us) break;
                 }
 
                 x = originalX;

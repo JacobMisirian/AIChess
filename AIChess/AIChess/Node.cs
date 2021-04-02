@@ -11,6 +11,72 @@ namespace AIChess {
         private static string[] BISHOP_MOVES = new string[] { "UP_LEFT", "UP_RIGHT", "DOWN_LEFT", "DOWN_RIGHT" };
         private static string[] ROOK_MOVES = new string[] { "UP", "DOWN", "LEFT", "RIGHT" };
         private static string[] QUEEN_MOVES = new string[] { "UP", "DOWN", "LEFT", "RIGHT", "UP_LEFT", "UP_RIGHT", "DOWN_LEFT", "DOWN_RIGHT" };
+        private static double[,] pawnEvalBlack = new double[,]
+        {
+            {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+            {0.5, 1.0, 1.0, -2.0, -2.0, 1.0, 1.0, 0.5},
+            {0.5, -0.5, -1.0,  0.0,  0.0, -1.0, -0.5,  0.5},
+            {0.0,  0.0,  0.0,  2.0,  2.0,  0.0,  0.0,  0.0},
+            {0.5,  0.5,  1.0,  2.5,  2.5,  1.0,  0.5,  0.5},
+            {1.0,  1.0,  2.0,  3.0,  3.0,  2.0,  1.0,  1.0},
+            {5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0},
+            {0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0}
+        };
+        private static double[,] knightEvalBlack = new double[,]
+        {
+            {-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0},
+            {-4.0, -2.0,  0.0,  0.5,  0.5,  0.0, -2.0, -4.0},
+            {-3.0,  0.5,  1.0,  1.5,  1.5,  1.0,  0.5, -3.0},
+            {-3.0,  0.0,  1.5,  2.0,  2.0,  1.5,  0.0, -3.0},
+            {-3.0,  0.5,  1.5,  2.0,  2.0,  1.5,  0.5, -3.0},
+            {-3.0,  0.0,  1.0,  1.5,  1.5,  1.0,  0.0, -3.0},
+            {-4.0, -2.0,  0.0,  0.0,  0.0,  0.0, -2.0, -4.0},
+            {-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0}
+        };
+        private static double[,] bishopEvalBlack = new double[,]
+        {
+            {-2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0},
+            {-1.0,  0.5,  0.0,  0.0,  0.0,  0.0,  0.5, -1.0},
+            {-1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0, -1.0},
+            {-1.0,  0.0,  1.0,  1.0,  1.0,  1.0,  0.0, -1.0},
+            {-1.0,  0.5,  0.5,  1.0,  1.0,  0.5,  0.5, -1.0},
+            {-1.0,  0.0,  0.5,  1.0,  1.0,  0.5,  0.0, -1.0},
+            {-1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0},
+            {-2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0}
+        };
+        private static double[,] rookEvalBlack = new double[,]
+        {
+            {0.0, 0.0, 0.0, 0.5, 0.5, 0.0, 0.0, 0.0},
+            {-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5},
+            {-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5},
+            {-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5},
+            {-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5},
+            {-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5},
+            {0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5},
+            {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+        };
+        private static double[,] queenEvalBlack = new double[,]
+        {
+            {-2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0},
+            {-1.0,  0.0,  0.0,  0.0,  0.0,  0.5,  0.0, -1.0},
+            {-1.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.5, -1.0},
+            {-0.5,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0,  0.0},
+            {-0.5,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -0.5},
+            {-1.0,  0.0,  0.5,  0.5,  0.5,  0.5,  0.0, -1.0},
+            {-1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0},
+            {-2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0}
+        };
+        private static double[,] kingEvalBlack = new double[,]
+        {
+            {2.0,  3.0,  1.0,  0.0,  0.0,  1.0,  3.0,  2.0},
+            {2.0,  2.0,  0.0,  0.0,  0.0,  0.0,  2.0,  2.0},
+            {-1.0, -2.0, -2.0, -2.0, -2.0, -2.0, -2.0, -1.0},
+            {-2.0, -3.0, -3.0, -4.0, -4.0, -3.0, -3.0, -2.0},
+            {-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0},
+            {-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0},
+            {-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0},
+            {-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0}
+        };
 
         public Node(Piece[] tiles) {
             Tiles = tiles;
@@ -55,9 +121,9 @@ namespace AIChess {
             return children;
         }
 
-        public int GetHeuristic(PieceColor color) {
-            int blackValues = getPieceValues(PieceColor.BLACK);
-            int whiteValues = getPieceValues(PieceColor.WHITE);
+        public double GetHeuristic(PieceColor color) {
+            double blackValues = getPieceValues(PieceColor.BLACK);
+            double whiteValues = getPieceValues(PieceColor.WHITE);
 
             if (color == PieceColor.BLACK) {
                 return blackValues - whiteValues;
@@ -66,25 +132,27 @@ namespace AIChess {
             }
         }
 
-        private int getPieceValues(PieceColor color) {
-            int res = 0;
+        private double getPieceValues(PieceColor color) {
+            double res = 0;
             foreach (var coord in getCoordsOfFilledSpots(color)) {
                 switch (tile(coord.Item1, coord.Item2).Type) {
                     case PieceType.PAWN:
-                        res += 1;
+                        res += 1.0 + pawnEvalBlack[coord.Item1 - 1, coord.Item2 - 1];
                         break;
                     case PieceType.ROOK:
-                        res += 5;
+                        res += 5.0 + rookEvalBlack[coord.Item1 - 1, coord.Item2 - 1];
                         break;
                     case PieceType.BISHOP:
+                        res += 3.0 + bishopEvalBlack[coord.Item1 - 1, coord.Item2 - 1];
+                        break;
                     case PieceType.KNIGHT:
-                        res += 3;
+                        res += 3.0 + knightEvalBlack[coord.Item1 - 1, coord.Item2 - 1];
                         break;
                     case PieceType.KING:
-                        res += 1000;
+                        res += 1000.0 + kingEvalBlack[coord.Item1 - 1, coord.Item2 - 1];
                         break;
                     case PieceType.QUEEN:
-                        res += 9;
+                        res += 9.0 + queenEvalBlack[coord.Item1 - 1, coord.Item2 - 1];
                         break;
                 }
             }

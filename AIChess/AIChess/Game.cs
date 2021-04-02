@@ -32,10 +32,10 @@ namespace AIChess {
         }
 
         public void AIMakeMove() {
-            Dictionary<int, Node> choices = new Dictionary<int, Node>();
+            Dictionary<double, Node> choices = new Dictionary<double, Node>();
 
             foreach (var child in Current.GetChildren(PieceColor.BLACK)) {
-                int minimaxScore = minimax(child, true, Current.Depth + 3, int.MinValue, int.MaxValue);
+                double minimaxScore = minimax(child, true, Current.Depth + 3, int.MinValue, int.MaxValue);
                 if (!choices.ContainsKey(minimaxScore)) {
                     choices.Add(minimaxScore, child);
                 }
@@ -45,12 +45,12 @@ namespace AIChess {
         }
 
 
-        private int minimax(Node node, bool isBlackTurn, int targetDepth, int a, int b) {
+        private double minimax(Node node, bool isBlackTurn, int targetDepth, double a, double b) {
             PieceColor color = isBlackTurn ? PieceColor.BLACK : PieceColor.WHITE;
             if (node.Depth == targetDepth) return node.GetHeuristic(PieceColor.BLACK);
 
             if (isBlackTurn) {
-                int value = int.MinValue;
+                double value = double.MinValue;
                 foreach (Node child in node.GetChildren(color)) {
                     value = Math.Max(value, minimax(child, false, targetDepth, a, b));
                     a = Math.Max(a, value);
@@ -58,7 +58,7 @@ namespace AIChess {
                 }
                 return value;
             } else {
-                int value = int.MaxValue;
+                double value = double.MaxValue;
                 foreach (Node child in node.GetChildren(color)) {
                     value = Math.Min(value, minimax(child, true, targetDepth, a, b));
                     b = Math.Min(b, value);

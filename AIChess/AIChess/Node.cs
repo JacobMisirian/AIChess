@@ -105,7 +105,7 @@ namespace AIChess {
             tile(x2, y2, color, type);
         }
 
-        public List<Node> GetChildren(PieceColor color) {
+        public List<Node> GetChildren(PieceColor color, bool checkForCheck = true) {
             List<Node> children = new List<Node>();
 
             foreach (var coord in getCoordsOfFilledSpots(color)) {
@@ -133,8 +133,22 @@ namespace AIChess {
                 }
             }
 
+            if (checkForCheck)
+                children.RemoveAll((n) => n.isInCheck(color));
+
 
             return children;
+        }
+
+        private bool isInCheck(PieceColor us) {
+            PieceColor them = us == PieceColor.BLACK ? PieceColor.WHITE : PieceColor.BLACK;
+            List<Node> nextMoves = GetChildren(them, false);
+
+            foreach (var move in nextMoves) {
+                if (Array.Find(move.Tiles, (p) => p.Type == PieceType.KING && p.Color == us) == null) return true;
+            }
+
+            return false;
         }
 
         public double GetHeuristic(PieceColor color) {

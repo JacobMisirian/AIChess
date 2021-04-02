@@ -57,7 +57,6 @@ namespace AIChess {
             }
 
             game = new Game();
-            game.AIMakeMove();
             refreshBoxes();
         }
 

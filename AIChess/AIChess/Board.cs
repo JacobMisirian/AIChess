@@ -106,7 +106,12 @@ namespace AIChess {
                 selectedX = x;
                 selectedY = y;
             } else {
-                game.HumanMakeMove(selectedX, selectedY, x, y);
+                if (!game.HumanMakeMove(selectedX, selectedY, x, y)) {
+                    MessageBox.Show("INVALID MOVE!");
+                    selectedX = -1;
+                    selectedY = -1;
+                    return;
+                }
                 game.AIMakeMove();
                 refreshBoxes();
 

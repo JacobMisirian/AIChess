@@ -21,14 +21,17 @@ namespace AIChess {
         }
 
         public bool HumanMakeMove(int x1, int y1, int x2, int y2) {
-            // TODO: if move is valid.
-            x1--; x2--; y1--; y2--;
+            List<Node> validMoves = Current.GetChildren(PieceColor.WHITE);
+            Node requestedMove = new Node(Current, x1, y1, x2, y2);
 
-            PieceType type = Current.Tiles[(y1 * 8) + x1].Type;
-            Current.Tiles[(y1 * 8) + x1] = new Piece(PieceColor.EMPTY, PieceType.EMPTY);
-            Current.Tiles[(y2 * 8) + x2] = new Piece(PieceColor.WHITE, type);
+            foreach (var move in validMoves) {
+                if (move.PieceMoved.Type == requestedMove.PieceMoved.Type && move.MovedTo == requestedMove.MovedTo) {
+                    Current = move;
+                    return true;
+                }
+            }
 
-            return true;
+            return false; ;
         }
 
         public void AIMakeMove() {

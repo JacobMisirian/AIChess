@@ -8,6 +8,9 @@ namespace AIChess {
         public Piece[] Tiles { get; private set; }
         public int Depth { get; private set; }
 
+        public Piece PieceMoved { get; private set; }
+        public (int, int) MovedTo { get; private set; }
+
         private static string[] BISHOP_MOVES = new string[] { "UP_LEFT", "UP_RIGHT", "DOWN_LEFT", "DOWN_RIGHT" };
         private static string[] ROOK_MOVES = new string[] { "UP", "DOWN", "LEFT", "RIGHT" };
         private static string[] QUEEN_MOVES = new string[] { "UP", "DOWN", "LEFT", "RIGHT", "UP_LEFT", "UP_RIGHT", "DOWN_LEFT", "DOWN_RIGHT" };
@@ -87,6 +90,20 @@ namespace AIChess {
             Array.Copy(n.Tiles, Tiles, n.Tiles.Length);
             Depth = n.Depth + 1;
         }
+        public Node(Node n, int x1, int y1, int x2, int y2) {
+            Tiles = new Piece[n.Tiles.Length];
+            Array.Copy(n.Tiles, Tiles, n.Tiles.Length);
+            Depth = n.Depth + 1;
+
+            PieceMoved = tile(x1, y1);
+            MovedTo = (x2, y2);
+
+            PieceType type = PieceMoved.Type;
+            PieceColor color = PieceMoved.Color;
+
+            tile(x1, y1, PieceColor.EMPTY, PieceType.EMPTY);
+            tile(x2, y2, color, type);
+        }
 
         public List<Node> GetChildren(PieceColor color) {
             List<Node> children = new List<Node>();
@@ -117,7 +134,6 @@ namespace AIChess {
             }
 
 
-
             return children;
         }
 
@@ -137,22 +153,22 @@ namespace AIChess {
             foreach (var coord in getCoordsOfFilledSpots(color)) {
                 switch (tile(coord.Item1, coord.Item2).Type) {
                     case PieceType.PAWN:
-                        res += 1.0 + pawnEvalBlack[coord.Item1 - 1, coord.Item2 - 1];
+                        res += 10 + pawnEvalBlack[coord.Item1 - 1, coord.Item2 - 1];
                         break;
                     case PieceType.ROOK:
-                        res += 5.0 + rookEvalBlack[coord.Item1 - 1, coord.Item2 - 1];
+                        res += 50 + rookEvalBlack[coord.Item1 - 1, coord.Item2 - 1];
                         break;
                     case PieceType.BISHOP:
-                        res += 3.0 + bishopEvalBlack[coord.Item1 - 1, coord.Item2 - 1];
+                        res += 30 + bishopEvalBlack[coord.Item1 - 1, coord.Item2 - 1];
                         break;
                     case PieceType.KNIGHT:
-                        res += 3.0 + knightEvalBlack[coord.Item1 - 1, coord.Item2 - 1];
+                        res += 30 + knightEvalBlack[coord.Item1 - 1, coord.Item2 - 1];
                         break;
                     case PieceType.KING:
-                        res += 1000.0 + kingEvalBlack[coord.Item1 - 1, coord.Item2 - 1];
+                        res += 10000.0 + kingEvalBlack[coord.Item1 - 1, coord.Item2 - 1];
                         break;
                     case PieceType.QUEEN:
-                        res += 9.0 + queenEvalBlack[coord.Item1 - 1, coord.Item2 - 1];
+                        res += 90.0 + queenEvalBlack[coord.Item1 - 1, coord.Item2 - 1];
                         break;
                 }
             }
@@ -178,35 +194,23 @@ namespace AIChess {
             bool canMoveTwo = us == PieceColor.BLACK ? y == 2 : y == 7;
 
             // MOVE UP
-            Node up = new Node(this);
-            if (up.tile(x, y + (ySign*1)).Type == PieceType.EMPTY) {
-                up.tile(x, y, PieceColor.EMPTY, PieceType.EMPTY);
-                up.tile(x, y + (ySign*1), us, PieceType.PAWN);
-                children.Add(up);
+            if (this.tile(x, y + (ySign*1)).Type == PieceType.EMPTY) {
+                children.Add(new Node(this, x, y, x, y + (ySign*1)));
             }
 
             // MOVE UP TWO
-            Node upTwo = new Node(this);
-            if (canMoveTwo && upTwo.tile(x, y + (ySign*1)).Type == PieceType.EMPTY && upTwo.tile(x, y + (ySign*2)).Type == PieceType.EMPTY) {
-                upTwo.tile(x, y, PieceColor.EMPTY, PieceType.EMPTY);
-                upTwo.tile(x, y + (ySign*2), us, PieceType.PAWN);
-                children.Add(upTwo);
+            if (canMoveTwo && this.tile(x, y + (ySign*1)).Type == PieceType.EMPTY && this.tile(x, y + (ySign*2)).Type == PieceType.EMPTY) {
+                children.Add(new Node(this, x, y, x, y + (ySign*2)));
             }
 
             // MOVE LEFT DIAGONAL
-            Node leftDiagonal = new Node(this);
-            if (leftDiagonal.tile(x - 1, y + (ySign * 1)).Color == them) {
-                leftDiagonal.tile(x, y, PieceColor.EMPTY, PieceType.EMPTY);
-                leftDiagonal.tile(x - 1, y + (ySign * 1), us, PieceType.PAWN);
-                children.Add(leftDiagonal);
+            if (this.tile(x - 1, y + (ySign * 1)).Color == them) {
+                children.Add(new Node(this, x, y, x - 1, y + (ySign * 1)));
             }
 
             // MOVE RIGHT DIAGONAL
-            Node rightDiagonal = new Node(this);
-            if (rightDiagonal.tile(x + 1, y + (ySign * 1)).Color == them) {
-                rightDiagonal.tile(x, y, PieceColor.EMPTY, PieceType.EMPTY);
-                rightDiagonal.tile(x + 1, y + (ySign * 1), us, PieceType.PAWN);
-                children.Add(rightDiagonal);
+            if (this.tile(x + 1, y + (ySign * 1)).Color == them) {
+                children.Add(new Node(this, x, y, x + 1, y + (ySign * 1)));
             }
         }
 
@@ -215,67 +219,43 @@ namespace AIChess {
             PieceColor them = us == PieceColor.BLACK ? PieceColor.WHITE : PieceColor.BLACK;
 
             // MOVE UP
-            Node up = new Node(this);
-            if (up.tile(x, y + 1).Type == PieceType.EMPTY || up.tile(x, y + 1).Color == them) {
-                up.tile(x, y, PieceColor.EMPTY, PieceType.EMPTY);
-                up.tile(x, y + 1, us, PieceType.KING);
-                children.Add(up);
+            if (this.tile(x, y + 1).Type == PieceType.EMPTY || this.tile(x, y + 1).Color == them) {
+                children.Add(new Node(this, x, y, x, y + 1));
             }
 
             // MOVE DOWN
-            Node down = new Node(this);
-            if (down.tile(x, y - 1).Type == PieceType.EMPTY || down.tile(x, y - 1).Color == them) {
-                down.tile(x, y, PieceColor.EMPTY, PieceType.EMPTY);
-                down.tile(x, y - 1, us, PieceType.KING);
-                children.Add(down);
+            if (this.tile(x, y - 1).Type == PieceType.EMPTY || this.tile(x, y - 1).Color == them) {
+                children.Add(new Node(this, x, y, x, y - 1));
             }
 
             // MOVE LEFT
-            Node left = new Node(this);
-            if (left.tile(x - 1, y).Type == PieceType.EMPTY || left.tile(x - 1, y).Color == them) {
-                left.tile(x, y, PieceColor.EMPTY, PieceType.EMPTY);
-                left.tile(x - 1, y, us, PieceType.KING);
-                children.Add(left);
+            if (this.tile(x - 1, y).Type == PieceType.EMPTY || this.tile(x - 1, y).Color == them) {
+                children.Add(new Node(this, x, y, x - 1, y));
             }
 
             // MOVE RIGHT
-            Node right = new Node(this);
-            if (right.tile(x + 1, y).Type == PieceType.EMPTY || left.tile(x + 1, y).Color == them) {
-                right.tile(x, y, PieceColor.EMPTY, PieceType.EMPTY);
-                right.tile(x + 1, y, us, PieceType.KING);
-                children.Add(right);
+            if (this.tile(x + 1, y).Type == PieceType.EMPTY || this.tile(x + 1, y).Color == them) {
+                children.Add(new Node(this, x, y, x + 1, y));
             }
 
             // MOVE UP RIGHT
-            Node upRight = new Node(this);
-            if (upRight.tile(x + 1, y + 1).Type == PieceType.EMPTY || upRight.tile(x + 1, y + 1).Color == them) {
-                upRight.tile(x, y, PieceColor.EMPTY, PieceType.EMPTY);
-                upRight.tile(x + 1, y + 1, us, PieceType.KING);
-                children.Add(upRight);
+            if (this.tile(x + 1, y + 1).Type == PieceType.EMPTY || this.tile(x + 1, y + 1).Color == them) {
+                children.Add(new Node(this, x, y, x + 1, y + 1));
             }
 
             // MOVE UP LEFT
-            Node upLeft = new Node(this);
-            if (upLeft.tile(x - 1, y + 1).Type == PieceType.EMPTY || upLeft.tile(x - 1, y + 1).Color == them) {
-                upLeft.tile(x, y, PieceColor.EMPTY, PieceType.EMPTY);
-                upLeft.tile(x - 1, y + 1, us, PieceType.KING);
-                children.Add(upLeft);
+            if (this.tile(x - 1, y + 1).Type == PieceType.EMPTY || this.tile(x - 1, y + 1).Color == them) {
+                children.Add(new Node(this, x, y, x - 1, y + 1));
             }
 
             // MOVE DOWN RIGHT
-            Node downRight = new Node(this);
-            if (downRight.tile(x + 1, y - 1).Type == PieceType.EMPTY || downRight.tile(x + 1, y - 1).Color == them) {
-                downRight.tile(x, y, PieceColor.EMPTY, PieceType.EMPTY);
-                downRight.tile(x + 1, y - 1, us, PieceType.KING);
-                children.Add(downRight);
+            if (this.tile(x + 1, y - 1).Type == PieceType.EMPTY || this.tile(x + 1, y - 1).Color == them) {
+                children.Add(new Node(this, x, y, x + 1, y - 1));
             }
 
             // MOVE DOWN LEFT
-            Node downLeft = new Node(this);
-            if (downLeft.tile(x - 1, y - 1).Type == PieceType.EMPTY || downLeft.tile(x - 1, y - 1).Color == them) {
-                downLeft.tile(x, y, PieceColor.EMPTY, PieceType.EMPTY);
-                downLeft.tile(x - 1, y - 1, us, PieceType.KING);
-                children.Add(downLeft);
+            if (this.tile(x - 1, y - 1).Type == PieceType.EMPTY || this.tile(x - 1, y - 1).Color == them) {
+                children.Add(new Node(this, x, y, x - 1, y - 1));
             }
         }
 
@@ -284,67 +264,43 @@ namespace AIChess {
             PieceColor them = us == PieceColor.BLACK ? PieceColor.WHITE : PieceColor.BLACK;
 
             // MOVE UP LEFT
-            Node upLeft = new Node(this);
-            if (upLeft.tile(x - 1, y + 2).Type == PieceType.EMPTY || upLeft.tile(x - 1, y + 2).Color == them) {
-                upLeft.tile(x, y, PieceColor.EMPTY, PieceType.EMPTY);
-                upLeft.tile(x - 1, y + 2, us, PieceType.KNIGHT);
-                children.Add(upLeft);
+            if (this.tile(x - 1, y + 2).Type == PieceType.EMPTY || this.tile(x - 1, y + 2).Color == them) {
+                children.Add(new Node(this, x, y, x - 1, y + 2));
             }
 
             // MOVE UP RIGHT
-            Node upRight = new Node(this);
-            if (upRight.tile(x + 1, y + 2).Type == PieceType.EMPTY || upRight.tile(x + 1, y + 2).Color == them) {
-                upRight.tile(x, y, PieceColor.EMPTY, PieceType.EMPTY);
-                upRight.tile(x + 1, y + 2, us, PieceType.KNIGHT);
-                children.Add(upRight);
+            if (this.tile(x + 1, y + 2).Type == PieceType.EMPTY || this.tile(x + 1, y + 2).Color == them) {
+                children.Add(new Node(this, x, y, x + 1, y + 2));
             }
 
             // MOVE LEFT UP
-            Node leftUp = new Node(this);
-            if (leftUp.tile(x - 2, y + 1).Type == PieceType.EMPTY || leftUp.tile(x - 2, y + 1).Color == them) {
-                leftUp.tile(x, y, PieceColor.EMPTY, PieceType.EMPTY);
-                leftUp.tile(x - 2, y + 1, us, PieceType.KNIGHT);
-                children.Add(leftUp);
+            if (this.tile(x - 2, y + 1).Type == PieceType.EMPTY || this.tile(x - 2, y + 1).Color == them) {
+                children.Add(new Node(this, x, y, x - 2, y + 1));
             }
 
             // MOVE RIGHT UP
-            Node rightUp = new Node(this);
-            if (rightUp.tile(x + 2, y + 1).Type == PieceType.EMPTY || rightUp.tile(x + 2, y + 1).Color == them) {
-                rightUp.tile(x, y, PieceColor.EMPTY, PieceType.EMPTY);
-                rightUp.tile(x + 2, y + 1, us, PieceType.KNIGHT);
-                children.Add(rightUp);
+            if (this.tile(x + 2, y + 1).Type == PieceType.EMPTY || this.tile(x + 2, y + 1).Color == them) {
+                children.Add(new Node(this, x, y, x + 2, y + 1));
             }
 
             // MOVE DOWN LEFT
-            Node downLeft = new Node(this);
-            if (downLeft.tile(x - 1, y - 2).Type == PieceType.EMPTY || downLeft.tile(x - 1, y - 2).Color == them) {
-                downLeft.tile(x, y, PieceColor.EMPTY, PieceType.EMPTY);
-                downLeft.tile(x - 1, y - 2, us, PieceType.KNIGHT);
-                children.Add(downLeft);
+            if (this.tile(x - 1, y - 2).Type == PieceType.EMPTY || this.tile(x - 1, y - 2).Color == them) {
+                children.Add(new Node(this, x, y, x - 1, y - 2));
             }
 
             // MOVE DOWN RIGHT
-            Node downRight = new Node(this);
-            if (downRight.tile(x + 1, y - 2).Type == PieceType.EMPTY || downRight.tile(x + 1, y - 2).Color == them) {
-                downRight.tile(x, y, PieceColor.EMPTY, PieceType.EMPTY);
-                downRight.tile(x + 1, y - 2, us, PieceType.KNIGHT);
-                children.Add(downRight);
+            if (this.tile(x + 1, y - 2).Type == PieceType.EMPTY || this.tile(x + 1, y - 2).Color == them) {
+                children.Add(new Node(this, x, y, x + 1, y - 2));
             }
 
             // MOVE LEFT DOWN
-            Node leftDown = new Node(this);
-            if (leftDown.tile(x - 2, y - 1).Type == PieceType.EMPTY || leftDown.tile(x - 2, y -1).Color == them) {
-                leftDown.tile(x, y, PieceColor.EMPTY, PieceType.EMPTY);
-                leftDown.tile(x - 2, y - 1, us, PieceType.KNIGHT);
-                children.Add(leftDown);
+            if (this.tile(x - 2, y - 1).Type == PieceType.EMPTY || this.tile(x - 2, y -1).Color == them) {
+                children.Add(new Node(this, x, y, x - 2, y - 1));
             }
 
             // MOVE RIGHT DOWN
-            Node rightDown = new Node(this);
-            if (rightDown.tile(x + 2, y - 1).Type == PieceType.EMPTY || rightDown.tile(x + 2, y - 1).Color == them) {
-                rightDown.tile(x, y, PieceColor.EMPTY, PieceType.EMPTY);
-                rightDown.tile(x + 2, y - 1, us, PieceType.KNIGHT);
-                children.Add(rightDown);
+            if (this.tile(x + 2, y - 1).Type == PieceType.EMPTY || this.tile(x + 2, y - 1).Color == them) {
+                children.Add(new Node(this, x, y, x + 2, y - 1));
             }
         }
         
@@ -359,25 +315,19 @@ namespace AIChess {
             int originalY = y;
 
             foreach (string dir in directions) {
-                Node child = new Node(this);
                 while (movingIter(dir, ref x, ref y)) {
-                    if (child.tile(x, y).Type == PieceType.EMPTY) {
-                        child.tile(originalX, originalY, PieceColor.EMPTY, PieceType.EMPTY);
-                        child.tile(x, y, us, type);
-                        children.Add(child);
-                        child = new Node(this);
+                    if (this.tile(x, y).Type == PieceType.EMPTY) {
+                        children.Add(new Node(this, originalX, originalY, x, y));
                     }
 
-                    if (child.tile(x, y).Color == them) {
-                        child.tile(originalX, originalY, PieceColor.EMPTY, PieceType.EMPTY);
-                        child.tile(x, y, us, type);
-                        children.Add(child);
+                    if (this.tile(x, y).Color == them) {
+                        children.Add(new Node(this, originalX, originalY, x, y));
                         x = originalX;
                         y = originalY;
                         break;
                     }
 
-                    if (child.tile(x, y).Color == us) {
+                    if (this.tile(x, y).Color == us) {
                         x = originalX;
                         y = originalY;
                         break;

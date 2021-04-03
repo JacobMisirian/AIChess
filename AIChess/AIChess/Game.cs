@@ -34,7 +34,7 @@ namespace AIChess {
             return false; ;
         }
 
-        public void AIMakeMove() {
+        public bool AIMakeMove() {
             Dictionary<double, Node> choices = new Dictionary<double, Node>();
 
             foreach (var child in Current.GetChildren(PieceColor.BLACK)) {
@@ -44,7 +44,9 @@ namespace AIChess {
                 }
             }
 
+            if (choices.Count == 0) return false;
             Current = choices[choices.Keys.Max()];
+            return true;
         }
 
 

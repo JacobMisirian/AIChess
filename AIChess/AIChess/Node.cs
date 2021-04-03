@@ -14,7 +14,20 @@ namespace AIChess {
         private static string[] BISHOP_MOVES = new string[] { "UP_LEFT", "UP_RIGHT", "DOWN_LEFT", "DOWN_RIGHT" };
         private static string[] ROOK_MOVES = new string[] { "UP", "DOWN", "LEFT", "RIGHT" };
         private static string[] QUEEN_MOVES = new string[] { "UP", "DOWN", "LEFT", "RIGHT", "UP_LEFT", "UP_RIGHT", "DOWN_LEFT", "DOWN_RIGHT" };
-        private static double[,] pawnEvalBlack = new double[,]
+
+
+        private static double[,] whitePawnPositionScores = new double[,]
+        {
+            {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+            {5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0},
+            {1.0, 1.0, 2.0, 3.0, 3.0, 2.0, 1.0, 1.0},
+            {0.5, 0.5, 1.0, 2.5, 2.5, 1.0, 0.5, 0.5},
+            {0.0, 0.0, 0.0, 2.0, 2.0, 0.0, 0.0, 0.0},
+            {0.5, -0.5, -1.0, 0.0, 0.0, -1.0, -0.5, 0.5},
+            {0.5, 1.0, 1.0, -2.0, -2.0, 1.0, 1.0, 0.5},
+            {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }
+        };
+        private static double[,] blackPawnPositionScores = new double[,]
         {
             {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
             {0.5, 1.0, 1.0, -2.0, -2.0, 1.0, 1.0, 0.5},
@@ -25,7 +38,7 @@ namespace AIChess {
             {5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0,  5.0},
             {0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0}
         };
-        private static double[,] knightEvalBlack = new double[,]
+        private static double[,] knightPositionScores = new double[,]
         {
             {-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0},
             {-4.0, -2.0,  0.0,  0.5,  0.5,  0.0, -2.0, -4.0},
@@ -36,7 +49,18 @@ namespace AIChess {
             {-4.0, -2.0,  0.0,  0.0,  0.0,  0.0, -2.0, -4.0},
             {-5.0, -4.0, -3.0, -3.0, -3.0, -3.0, -4.0, -5.0}
         };
-        private static double[,] bishopEvalBlack = new double[,]
+        private static double[,] whiteBishopPositionScores = new double[,]
+        {
+            {-2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0},
+            {-1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.0},
+            {-1.0, 0.0, 0.5, 1.0, 1.0, 0.5, 0.0, -1.0},
+            {-1.0, 0.5, 0.5, 1.0, 1.0, 0.5, 0.5, -1.0},
+            {-1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, -1.0},
+            {-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0},
+            {-1.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.5, -1.0},
+            {-2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0}
+        };
+        private static double[,] blackBishopPositionScores = new double[,]
         {
             {-2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0},
             {-1.0,  0.5,  0.0,  0.0,  0.0,  0.0,  0.5, -1.0},
@@ -47,7 +71,18 @@ namespace AIChess {
             {-1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0},
             {-2.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -2.0}
         };
-        private static double[,] rookEvalBlack = new double[,]
+        private static double[,] whiteRookPositionScores = new double[,]
+        {
+            {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+            {0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5},
+            {-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5},
+            {-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5},
+            {-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5},
+            {-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5},
+            {-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5},
+            {0.0, 0.0, 0.0, 0.5, 0.5, 0.0, 0.0, 0.0}
+        };
+        private static double[,] blackRookPositionScores = new double[,]
         {
             {0.0, 0.0, 0.0, 0.5, 0.5, 0.0, 0.0, 0.0},
             {-0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -0.5},
@@ -58,7 +93,7 @@ namespace AIChess {
             {0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5},
             {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
         };
-        private static double[,] queenEvalBlack = new double[,]
+        private static double[,] queenPositionScores = new double[,]
         {
             {-2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0},
             {-1.0,  0.0,  0.0,  0.0,  0.0,  0.5,  0.0, -1.0},
@@ -69,7 +104,18 @@ namespace AIChess {
             {-1.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0, -1.0},
             {-2.0, -1.0, -1.0, -0.5, -0.5, -1.0, -1.0, -2.0}
         };
-        private static double[,] kingEvalBlack = new double[,]
+        private static double[,] whiteKingPositionScores = new double[,]
+        {
+            {-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0},
+            {-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0},
+            {-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0},
+            {-3.0, -4.0, -4.0, -5.0, -5.0, -4.0, -4.0, -3.0},
+            {-2.0, -3.0, -3.0, -4.0, -4.0, -3.0, -3.0, -2.0},
+            {-1.0, -2.0, -2.0, -2.0, -2.0, -2.0, -2.0, -1.0},
+            {2.0, 2.0, 0.0, 0.0, 0.0, 0.0, 2.0, 2.0},
+            {2.0, 3.0, 1.0, 0.0, 0.0, 1.0, 3.0, 2.0}
+        };
+        private static double[,] blackKingPositionScores = new double[,]
         {
             {2.0,  3.0,  1.0,  0.0,  0.0,  1.0,  3.0,  2.0},
             {2.0,  2.0,  0.0,  0.0,  0.0,  0.0,  2.0,  2.0},
@@ -167,22 +213,34 @@ namespace AIChess {
             foreach (var coord in getCoordsOfFilledSpots(color)) {
                 switch (tile(coord.Item1, coord.Item2).Type) {
                     case PieceType.PAWN:
-                        res += 10 + pawnEvalBlack[coord.Item1 - 1, coord.Item2 - 1];
+                        if (color == PieceColor.BLACK)
+                            res += 10 + blackPawnPositionScores[coord.Item1 - 1, coord.Item2 - 1];
+                        else
+                            res += 10 + whitePawnPositionScores[coord.Item1 - 1, coord.Item2 - 1];
                         break;
                     case PieceType.ROOK:
-                        res += 50 + rookEvalBlack[coord.Item1 - 1, coord.Item2 - 1];
+                        if (color == PieceColor.BLACK)
+                            res += 50 + blackRookPositionScores[coord.Item1 - 1, coord.Item2 - 1];
+                        else
+                            res += 50 + whiteRookPositionScores[coord.Item1 - 1, coord.Item2 - 1];
                         break;
                     case PieceType.BISHOP:
-                        res += 30 + bishopEvalBlack[coord.Item1 - 1, coord.Item2 - 1];
+                        if (color == PieceColor.BLACK)
+                            res += 30 + blackBishopPositionScores[coord.Item1 - 1, coord.Item2 - 1];
+                        else
+                            res += 30 + whiteBishopPositionScores[coord.Item1 - 1, coord.Item2 - 1];
                         break;
                     case PieceType.KNIGHT:
-                        res += 30 + knightEvalBlack[coord.Item1 - 1, coord.Item2 - 1];
+                        res += 30 + knightPositionScores[coord.Item1 - 1, coord.Item2 - 1];
                         break;
                     case PieceType.KING:
-                        res += 10000.0 + kingEvalBlack[coord.Item1 - 1, coord.Item2 - 1];
+                        if (color == PieceColor.BLACK)
+                            res += 10000.0 + blackKingPositionScores[coord.Item1 - 1, coord.Item2 - 1];
+                        else
+                            res += 10000.0 + whiteKingPositionScores[coord.Item1 - 1, coord.Item2 - 1];
                         break;
                     case PieceType.QUEEN:
-                        res += 90.0 + queenEvalBlack[coord.Item1 - 1, coord.Item2 - 1];
+                        res += 90.0 + queenPositionScores[coord.Item1 - 1, coord.Item2 - 1];
                         break;
                 }
             }
@@ -208,13 +266,13 @@ namespace AIChess {
             bool canMoveTwo = us == PieceColor.BLACK ? y == 2 : y == 7;
 
             // MOVE UP
-            if (this.tile(x, y + (ySign*1)).Type == PieceType.EMPTY) {
-                children.Add(new Node(this, x, y, x, y + (ySign*1)));
+            if (this.tile(x, y + (ySign * 1)).Type == PieceType.EMPTY) {
+                children.Add(new Node(this, x, y, x, y + (ySign * 1)));
             }
 
             // MOVE UP TWO
-            if (canMoveTwo && this.tile(x, y + (ySign*1)).Type == PieceType.EMPTY && this.tile(x, y + (ySign*2)).Type == PieceType.EMPTY) {
-                children.Add(new Node(this, x, y, x, y + (ySign*2)));
+            if (canMoveTwo && this.tile(x, y + (ySign * 1)).Type == PieceType.EMPTY && this.tile(x, y + (ySign * 2)).Type == PieceType.EMPTY) {
+                children.Add(new Node(this, x, y, x, y + (ySign * 2)));
             }
 
             // MOVE LEFT DIAGONAL
@@ -308,7 +366,7 @@ namespace AIChess {
             }
 
             // MOVE LEFT DOWN
-            if (this.tile(x - 2, y - 1).Type == PieceType.EMPTY || this.tile(x - 2, y -1).Color == them) {
+            if (this.tile(x - 2, y - 1).Type == PieceType.EMPTY || this.tile(x - 2, y - 1).Color == them) {
                 children.Add(new Node(this, x, y, x - 2, y - 1));
             }
 
@@ -317,7 +375,7 @@ namespace AIChess {
                 children.Add(new Node(this, x, y, x + 2, y - 1));
             }
         }
-        
+
 
         // Used for ROOK, BISHOP, and QUEEN
         private void generateUnboundedPieceMoves(int x, int y, string[] directions, List<Node> children) {

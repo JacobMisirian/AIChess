@@ -111,7 +111,10 @@ namespace AIChess {
                     selectedY = -1;
                     return;
                 }
-                game.AIMakeMove();
+
+                if (!game.AIMakeMove()) {
+                    MessageBox.Show("Checkmate!");
+                }
                 refreshBoxes();
 
                 selectedX = -1;

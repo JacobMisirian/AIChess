@@ -107,8 +107,11 @@ namespace AIChess {
                 selectedX = x;
                 selectedY = y;
 
-                foreach (var validMove in game.Current.GetChildren(PieceColor.WHITE).Select((n) => n.MovedFrom == (selectedX, selectedY) ? n : null)) {
+                var validMoves = game.Current.GetChildren(PieceColor.WHITE).Select((n) => n.MovedFrom == (selectedX, selectedY) ? n : null);
+                bool existsValidMove = false;
+                foreach (var validMove in validMoves) {
                     if (validMove == null) continue;
+                    existsValidMove = true;
                     int validX = validMove.MovedTo.Item1 - 1;
                     int validY = validMove.MovedTo.Item2 - 1;
                     var pictureBox = pictureBoxes[(validY * 8) + validX];
@@ -117,6 +120,11 @@ namespace AIChess {
                                   Color.Red, SELECT_BORDER_SIZE, ButtonBorderStyle.Inset,
                                   Color.Red, SELECT_BORDER_SIZE, ButtonBorderStyle.Inset,
                                   Color.Red, SELECT_BORDER_SIZE, ButtonBorderStyle.Inset);
+                }
+
+                if (!existsValidMove) {
+                    selectedX = -1;
+                    selectedY = -1;
                 }
 
             } else {

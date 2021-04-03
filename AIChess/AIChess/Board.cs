@@ -26,6 +26,8 @@ namespace AIChess {
         private const string EMPTY = "../../Empty.jpg";
         private const string EMPTY_BLACK = "../../EmptyBlack.png";
 
+        private const int SELECT_BORDER_SIZE = 10;
+
         private PictureBox[] pictureBoxes;
         private Game game;
         public Board() {
@@ -50,7 +52,6 @@ namespace AIChess {
                     int tmpX = x;
                     int tmpY = y;
                     pictureBox.Click += (s, e) => { selectSquare(tmpX + 1, tmpY + 1); };
-                    pictureBox.Paint += pictureBox_OnPaint;
 
                     Controls.Add(pictureBox);
                     pictureBoxes[y * 8 + x] = pictureBox;
@@ -64,7 +65,6 @@ namespace AIChess {
         private void refreshBoxes() {
             bool color = false;
             for (int i = 0; i < pictureBoxes.Length; i++) {
-                pictureBoxes[i].Tag = Color.Transparent;
                 if (game.Current.Tiles[i].Color == PieceColor.WHITE && game.Current.Tiles[i].Type == PieceType.PAWN)
                     pictureBoxes[i].Load(WHITE_PAWN);
                 else if (game.Current.Tiles[i].Color == PieceColor.WHITE && game.Current.Tiles[i].Type == PieceType.ROOK)
@@ -112,8 +112,11 @@ namespace AIChess {
                     int validX = validMove.MovedTo.Item1 - 1;
                     int validY = validMove.MovedTo.Item2 - 1;
                     var pictureBox = pictureBoxes[(validY * 8) + validX];
-                    pictureBox.Tag = Color.Red;
-                    pictureBox.Refresh();
+                    ControlPaint.DrawBorder(pictureBox.CreateGraphics(), pictureBox.ClientRectangle,
+                                  Color.Red, SELECT_BORDER_SIZE, ButtonBorderStyle.Inset,
+                                  Color.Red, SELECT_BORDER_SIZE, ButtonBorderStyle.Inset,
+                                  Color.Red, SELECT_BORDER_SIZE, ButtonBorderStyle.Inset,
+                                  Color.Red, SELECT_BORDER_SIZE, ButtonBorderStyle.Inset);
                 }
 
             } else {
@@ -132,12 +135,6 @@ namespace AIChess {
                 selectedX = -1;
                 selectedY = -1;
             }
-        }
-
-        private void pictureBox_OnPaint(object sender, PaintEventArgs e) {
-            PictureBox pictureBox = (PictureBox)sender;
-            if (pictureBox.Tag == null) { pictureBox.Tag = Color.Transparent; }
-            ControlPaint.DrawBorder(e.Graphics, pictureBox.ClientRectangle, (Color)pictureBox.Tag, ButtonBorderStyle.Outset);
         }
 
         private void Board_Load(object sender, EventArgs e) {

@@ -132,6 +132,7 @@ namespace AIChess {
                     MessageBox.Show("INVALID MOVE!");
                     selectedX = -1;
                     selectedY = -1;
+                    refreshBoxes();
                     return;
                 }
 

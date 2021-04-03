@@ -38,7 +38,7 @@ namespace AIChess {
             Dictionary<double, Node> choices = new Dictionary<double, Node>();
 
             foreach (var child in Current.GetChildren(PieceColor.BLACK)) {
-                double minimaxScore = minimax(child, true, Current.Depth + 3, int.MinValue, int.MaxValue);
+                double minimaxScore = minimax(child, true, Current.Depth + 3, double.MinValue, double.MaxValue);
                 if (!choices.ContainsKey(minimaxScore)) {
                     choices.Add(minimaxScore, child);
                 }
@@ -49,10 +49,10 @@ namespace AIChess {
             return true;
         }
 
-
         private double minimax(Node node, bool isBlackTurn, int targetDepth, double a, double b) {
             PieceColor color = isBlackTurn ? PieceColor.BLACK : PieceColor.WHITE;
-            if (node.Depth == targetDepth) return node.GetHeuristic(PieceColor.BLACK);
+            if (node.Depth == targetDepth) return node.GetHeuristic(color);
+
 
             if (isBlackTurn) {
                 double value = double.MinValue;
@@ -70,6 +70,27 @@ namespace AIChess {
                     if (b <= a) break;
                 }
                 return value;
+            }
+        }
+
+        private double minimaxExperimental(Node node, bool isBlackTurn, int targetDepth, double a, double b) {
+            PieceColor color = isBlackTurn ? PieceColor.BLACK : PieceColor.WHITE;
+            if (node.Depth == targetDepth) return node.GetHeuristic(color);
+
+            if (isBlackTurn) {
+                double sum = 0;
+                var children = node.GetChildren(color);
+                foreach (Node child in children) {
+                    sum += minimax(child, false, targetDepth, a, b);
+                }
+                return sum / children.Count;
+            } else {
+                double sum = 0;
+                var children = node.GetChildren(color);
+                foreach (Node child in children) {
+                    sum -= minimax(child, true, targetDepth, a, b);
+                }
+                return sum / children.Count;
             }
         }
     }

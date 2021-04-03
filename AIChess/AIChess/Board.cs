@@ -50,6 +50,7 @@ namespace AIChess {
                     int tmpX = x;
                     int tmpY = y;
                     pictureBox.Click += (s, e) => { selectSquare(tmpX + 1, tmpY + 1); };
+                    pictureBox.Paint += pictureBox_OnPaint;
 
                     Controls.Add(pictureBox);
                     pictureBoxes[y * 8 + x] = pictureBox;
@@ -63,6 +64,7 @@ namespace AIChess {
         private void refreshBoxes() {
             bool color = false;
             for (int i = 0; i < pictureBoxes.Length; i++) {
+                pictureBoxes[i].Tag = Color.Transparent;
                 if (game.Current.Tiles[i].Color == PieceColor.WHITE && game.Current.Tiles[i].Type == PieceType.PAWN)
                     pictureBoxes[i].Load(WHITE_PAWN);
                 else if (game.Current.Tiles[i].Color == PieceColor.WHITE && game.Current.Tiles[i].Type == PieceType.ROOK)
@@ -104,6 +106,16 @@ namespace AIChess {
             } else if (selectedX == -1 && selectedY == -1) {
                 selectedX = x;
                 selectedY = y;
+
+                foreach (var validMove in game.Current.GetChildren(PieceColor.WHITE).Select((n) => n.MovedFrom == (selectedX, selectedY) ? n : null)) {
+                    if (validMove == null) continue;
+                    int validX = validMove.MovedTo.Item1 - 1;
+                    int validY = validMove.MovedTo.Item2 - 1;
+                    var pictureBox = pictureBoxes[(validY * 8) + validX];
+                    pictureBox.Tag = Color.Red;
+                    pictureBox.Refresh();
+                }
+
             } else {
                 if (!game.HumanMakeMove(selectedX, selectedY, x, y)) {
                     MessageBox.Show("INVALID MOVE!");
@@ -120,6 +132,12 @@ namespace AIChess {
                 selectedX = -1;
                 selectedY = -1;
             }
+        }
+
+        private void pictureBox_OnPaint(object sender, PaintEventArgs e) {
+            PictureBox pictureBox = (PictureBox)sender;
+            if (pictureBox.Tag == null) { pictureBox.Tag = Color.Transparent; }
+            ControlPaint.DrawBorder(e.Graphics, pictureBox.ClientRectangle, (Color)pictureBox.Tag, ButtonBorderStyle.Outset);
         }
 
         private void Board_Load(object sender, EventArgs e) {

@@ -21,7 +21,7 @@ namespace AIChess {
         }
 
         public bool HumanMakeMove(int x1, int y1, int x2, int y2) {
-            List<Node> validMoves = Current.GetChildren(PieceColor.WHITE);
+            List<Node> validMoves = Current.GetChildren(PieceColor.WHITE, removeBadChildren: false);
             Node requestedMove = new Node(Current, x1, y1, x2, y2);
 
             foreach (var move in validMoves) {

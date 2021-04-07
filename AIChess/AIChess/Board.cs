@@ -107,7 +107,7 @@ namespace AIChess {
                 selectedX = x;
                 selectedY = y;
 
-                var validMoves = game.Current.GetChildren(PieceColor.WHITE).Select((n) => n.MovedFrom == (selectedX, selectedY) ? n : null);
+                var validMoves = game.Current.GetChildren(PieceColor.WHITE, removeBadChildren: false).Select((n) => n.MovedFrom == (selectedX, selectedY) ? n : null);
                 bool existsValidMove = false;
                 foreach (var validMove in validMoves) {
                     if (validMove == null) continue;

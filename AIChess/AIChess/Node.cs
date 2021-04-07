@@ -33,7 +33,7 @@ namespace AIChess {
             tile(x2, y2, color, type);
         }
 
-        public List<Node> GetChildren(PieceColor color, bool checkForCheck = true) {
+        public List<Node> GetChildren(PieceColor color, bool checkForCheck = true, bool removeBadChildren = true) {
             List<Node> children = new List<Node>();
 
             foreach (var coord in getCoordsOfFilledSpots(color)) {
@@ -64,6 +64,18 @@ namespace AIChess {
             if (checkForCheck)
                 children.RemoveAll((n) => n.isInCheck(color));
 
+            if (color == PieceColor.WHITE && removeBadChildren) {
+                double sum = 0;
+                for (int i = 0; i < children.Count; i++) {
+                    sum += children[i].GetHeuristic(PieceColor.WHITE);
+                }
+                double avg = sum / children.Count;
+                for (int i = 0; i < children.Count; i++) {
+                    if (children[i].GetHeuristic(PieceColor.WHITE) < avg) {
+                        children.RemoveAt(i--);
+                    }
+                }
+            }
 
             return children;
         }

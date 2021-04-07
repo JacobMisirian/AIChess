@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Threading.Tasks;
 
 namespace AIChess {
     public partial class Board : Form {
@@ -100,7 +101,7 @@ namespace AIChess {
 
         private int selectedX = -1;
         private int selectedY = -1;
-        private void selectSquare(int x, int y) {
+        private async void selectSquare(int x, int y) {
             if (selectedX == -1 && selectedY == -1 && game.Current.Tiles[(y - 1) * 8 + x - 1].Color != PieceColor.WHITE) {
                 MessageBox.Show("Select one of your own tiles!");
             } else if (selectedX == -1 && selectedY == -1) {
@@ -138,13 +139,22 @@ namespace AIChess {
                         refreshBoxes();
                         return;
                     }
+                    else
+                        refreshBoxes();
+
 
                     if (!game.AIMakeMove())
                     {
                         MessageBox.Show("Checkmate!");
                     }
+                    else
+                    {
+                        await Task.Delay(150);
+                        refreshBoxes();
+                    }
                 }
-                refreshBoxes();
+                else
+                    refreshBoxes();
 
                 selectedX = -1;
                 selectedY = -1;

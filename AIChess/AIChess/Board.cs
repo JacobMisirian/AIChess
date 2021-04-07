@@ -128,16 +128,21 @@ namespace AIChess {
                 }
 
             } else {
-                if (!game.HumanMakeMove(selectedX, selectedY, x, y)) {
-                    MessageBox.Show("INVALID MOVE!");
-                    selectedX = -1;
-                    selectedY = -1;
-                    refreshBoxes();
-                    return;
-                }
+                if (!(selectedX == x && selectedY == y))
+                {
+                    if (!game.HumanMakeMove(selectedX, selectedY, x, y))
+                    {
+                        MessageBox.Show("INVALID MOVE!");
+                        selectedX = -1;
+                        selectedY = -1;
+                        refreshBoxes();
+                        return;
+                    }
 
-                if (!game.AIMakeMove()) {
-                    MessageBox.Show("Checkmate!");
+                    if (!game.AIMakeMove())
+                    {
+                        MessageBox.Show("Checkmate!");
+                    }
                 }
                 refreshBoxes();
 

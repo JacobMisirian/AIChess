@@ -31,7 +31,7 @@ namespace AIChess {
                 }
             }
 
-            return false; ;
+            return false;
         }
 
         public bool AIMakeMove() {
@@ -51,20 +51,28 @@ namespace AIChess {
 
         private double minimax(Node node, bool isBlackTurn, int targetDepth, double a, double b) {
             PieceColor color = isBlackTurn ? PieceColor.BLACK : PieceColor.WHITE;
-            if (node.Depth == targetDepth) return node.GetHeuristic(color);
 
+            if (node.Depth == targetDepth) {
+                if (node.IsCheckmate) { return double.MinValue; }
+                return node.GetHeuristic(color);
+            }
+
+            var children = node.GetChildren(color);
 
             if (isBlackTurn) {
                 double value = double.MinValue;
-                foreach (Node child in node.GetChildren(color)) {
+                foreach (Node child in children) {
                     value = Math.Max(value, minimax(child, false, targetDepth, a, b));
                     a = Math.Max(a, value);
                     if (a >= b) break;
                 }
                 return value;
             } else {
-                double value = double.MaxValue;
-                foreach (Node child in node.GetChildren(color)) {
+                if (node.IsCheckmate) {
+                    return double.MaxValue - node.Depth;
+                }
+                double value = double.MaxValue - node.Depth;
+                foreach (Node child in children) {
                     value = Math.Min(value, minimax(child, true, targetDepth, a, b));
                     b = Math.Min(b, value);
                     if (b <= a) break;

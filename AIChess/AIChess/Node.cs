@@ -12,15 +12,19 @@ namespace AIChess {
         public (int, int) MovedFrom { get; private set; }
         public (int, int) MovedTo { get; private set; }
 
+        public bool IsCheckmate { get; private set; }
+
 
         public Node(Piece[] tiles) {
             Tiles = tiles;
             Depth = 0;
+            IsCheckmate = false;
         }
         public Node(Node n, int x1, int y1, int x2, int y2) {
             Tiles = new Piece[n.Tiles.Length];
             Array.Copy(n.Tiles, Tiles, n.Tiles.Length);
             Depth = n.Depth + 1;
+            IsCheckmate = false;
 
             PieceMoved = tile(x1, y1);
             MovedFrom = (x1, y1);
@@ -61,8 +65,11 @@ namespace AIChess {
                 }
             }
 
-            if (checkForCheck)
+            if (checkForCheck) {
                 children.RemoveAll((n) => n.isInCheck(color));
+            }
+
+            if (children.Count == 0) IsCheckmate = true;
 
             if (color == PieceColor.WHITE && removeBadChildren) {
                 double sum = 0;
@@ -91,11 +98,12 @@ namespace AIChess {
             return false;
         }
 
-        public double GetHeuristic(PieceColor color) {
+        public double GetHeuristic(PieceColor us) {
+            PieceColor them = us == PieceColor.WHITE ? PieceColor.BLACK : PieceColor.WHITE;
             double blackValues = getPieceValues(PieceColor.BLACK);
             double whiteValues = getPieceValues(PieceColor.WHITE);
 
-            if (color == PieceColor.BLACK) {
+            if (us == PieceColor.BLACK) {
                 return blackValues - whiteValues;
             } else {
                 return whiteValues - blackValues;

@@ -38,7 +38,7 @@ namespace AIChess {
             Dictionary<double, Node> choices = new Dictionary<double, Node>();
 
             foreach (var child in Current.GetChildren(PieceColor.BLACK)) {
-                double minimaxScore = minimax(child, true, Current.Depth + 3, double.MinValue, double.MaxValue);
+                double minimaxScore = minimax(child, false, Current.Depth + 4, double.MinValue, double.MaxValue);
                 if (!choices.ContainsKey(minimaxScore)) {
                     choices.Add(minimaxScore, child);
                 }
@@ -53,7 +53,7 @@ namespace AIChess {
             PieceColor color = isBlackTurn ? PieceColor.BLACK : PieceColor.WHITE;
 
             if (node.Depth == targetDepth) {
-                if (node.IsCheckmate) { return double.MinValue; }
+                if (node.GetChildren(PieceColor.WHITE).Count == 0) return double.MaxValue - node.Depth;
                 return node.GetHeuristic(color);
             }
 
@@ -68,9 +68,6 @@ namespace AIChess {
                 }
                 return value;
             } else {
-                if (node.IsCheckmate) {
-                    return double.MaxValue - node.Depth;
-                }
                 double value = double.MaxValue - node.Depth;
                 foreach (Node child in children) {
                     value = Math.Min(value, minimax(child, true, targetDepth, a, b));
